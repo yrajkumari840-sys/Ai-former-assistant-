@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AI किसान सहायक</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f1f8e9;
+      color: #183b1a;
+    }
+
+    header {
+      background: linear-gradient(135deg, #15803d, #22c55e);
+      color: white;
+      padding: 25px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 25px auto;
+      padding: 15px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      color: #15803d;
+      margin-bottom: 15px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .feature {
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      border: 1px solid #b7c9b8;
+      border-radius: 12px;
+      resize: vertical;
+      font-size: 16px;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #16a34a;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      background: #15803d;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #166534;
+    }
+
+    #answer {
+      margin-top: 18px;
+      padding: 15px;
+      background: #f0fdf4;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #527052;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 25px;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🌾 AI किसान सहायक</h1>
+  <p>किसानों के लिए हिंदी में स्मार्ट खेती सलाह</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>🌱 किसान सेवाएँ</h2>
+
+    <div class="features">
+      <div class="feature">🌾 फसल सलाह</div>
+      <div class="feature">🐛 कीट एवं रोग</div>
+      <div class="feature">💧 सिंचाई सलाह</div>
+      <div class="feature">🌿 खाद एवं उर्वरक</div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <h2>🤖 AI से सवाल पूछें</h2>
+
+    <textarea
+      id="question"
+      placeholder="उदाहरण: गेहूं की फसल में पीली पत्तियां हो रही हैं, क्या करें?"
+    ></textarea>
+
+    <button onclick="askAI()">
+      🌾 AI से सलाह लें
+    </button>
+
+    <div id="answer"></div>
+
+  </div>
+
+</div>
+
+<footer>
+  © 2026 AI किसान सहायक | किसानों के लिए बनाया गया
+</footer>
+
+
+<script>
+
+async function askAI() {
+
+  const question = document.getElementById("question").value.trim();
+  const answer = document.getElementById("answer");
+
+  if (!question) {
+    alert("कृपया अपना सवाल लिखें।");
+    return;
+  }
+
+  answer.style.display = "block";
+  answer.innerText = "⏳ AI आपकी खेती से जुड़ी जानकारी तैयार कर रहा है...";
+
+  /*
+    IMPORTANT:
+    API key को HTML/JavaScript में सीधे न रखें।
+
+    नीचे /api/ask आपका अपना backend endpoint होना चाहिए।
+  */
+
+  try {
+
+    const response = await fetch("/api/ask", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        question: question
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "कुछ समस्या हुई");
+    }
+
+    answer.innerText =
+      "🌾 AI किसान सहायक:\n\n" +
+      data.answer;
+
+  } catch (error) {
+
+    answer.innerText =
+      "❌ अभी AI सेवा उपलब्ध नहीं है।\n\n" +
+      "Backend API को सही तरीके से connect करें।";
+
+    console.error(error);
+  }
+}
+
+</script>
+
+</body>
+</html>
+
+Backend में AI API
+
+आपके "/api/ask" endpoint में OpenAI Responses API इस्तेमाल किया जा सकता है। उदाहरण के लिए:
+
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+export default async function handler(req, res) {
+
+  try {
+
+    const { question } = req.body;
+
+    const response = await client.responses.create({
+
+      // नवीनतम उपलब्ध मॉडल को यहां रखें
+      model: "gpt-6-astra",
+
+      instructions: `
+        आप भारत के किसानों के AI सहायक हैं।
+        हमेशा सरल हिंदी में जवाब दें।
+        फसल, मिट्टी, सिंचाई, खाद, कीट और रोग
+        के बारे में व्यावहारिक सलाह दें।
+        यदि जानकारी निश्चित नहीं है तो किसान को
+        कृषि विशेषज्ञ से जांच कराने की सलाह दें।
+      `,
+
+      input: question,
+
+      // नवीनतम जानकारी के लिए web search
+      tools: [
+        {
+          type: "web_search"
+        }
+      ]
+    });
+
+    res.status(200).json({
+      answer: response.output_text
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: "AI सेवा में समस्या हुई"
+    });
+
+  }
+}
+
+ध्यान दें: OpenAI की वर्तमान API documentation में "gpt-6-astra" उपलब्ध मॉडल के रूप में दिख रहा है; मॉडल IDs समय के साथ बदल सकते हैं, इसलिए production में उपलब्ध मॉडल सूची/दस्तावेज़ देखकर मॉडल चुनना बेहतर है।
+
+अगर आप चाहें तो इसी को अगले चरण में पूरा working website (HTML + Node.js backend) बनाकर, जिसमें फसल की फोटो upload करके रोग पहचान, मौसम, और भारत की सरकारी किसान योजनाएँ भी हों, तैयार किया जा सकता है।
